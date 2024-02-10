@@ -39,22 +39,12 @@ public class Car {
     private AdditionalInformation additionalInfo;
 	
 	private boolean testDriveBooked = false;
-    
-    //constructor
-	/*
-	 * public void Car() { basicInformation = new BasicInformation();
-	 * technicalSpecifications = new TechnicalSpecifications(); performanceMetrics =
-	 * new PerformanceMetrics(); dimensionsCapacity = new DimensionsCapacity();
-	 * features = new Features(); additionalInfo = new AdditionalInformation(); }
-	 */
-
-	public Car() {
-		super();
-	}
-
+	
+	private boolean blockedForPurchase = false;
+	
 	public Car(Long id, BasicInformation basicInformation, TechnicalSpecifications technicalSpecifications,
 			PerformanceMetrics performanceMetrics, DimensionsCapacity dimensionsCapacity, Features features,
-			AdditionalInformation additionalInfo) {
+			AdditionalInformation additionalInfo, boolean testDriveBooked, boolean blockedForPurchase) {
 		super();
 		this.id = id;
 		this.basicInformation = basicInformation;
@@ -63,6 +53,16 @@ public class Car {
 		this.dimensionsCapacity = dimensionsCapacity;
 		this.features = features;
 		this.additionalInfo = additionalInfo;
+		this.testDriveBooked = testDriveBooked;
+		this.blockedForPurchase = blockedForPurchase;
+	}
+
+	public void setBlockedForPurchase(boolean blockedForPurchase) {
+		this.blockedForPurchase = blockedForPurchase;
+	}
+    
+	public Car() {
+		super();
 	}
 
 	public Long getId() {
@@ -91,20 +91,6 @@ public class Car {
 
 	public PerformanceMetrics getPerformanceMetrics() {
 		return performanceMetrics;
-	}
-
-	public Car(Long id, BasicInformation basicInformation, TechnicalSpecifications technicalSpecifications,
-			PerformanceMetrics performanceMetrics, DimensionsCapacity dimensionsCapacity, Features features,
-			AdditionalInformation additionalInfo, boolean testDriveBooked) {
-		super();
-		this.id = id;
-		this.basicInformation = basicInformation;
-		this.technicalSpecifications = technicalSpecifications;
-		this.performanceMetrics = performanceMetrics;
-		this.dimensionsCapacity = dimensionsCapacity;
-		this.features = features;
-		this.additionalInfo = additionalInfo;
-		this.testDriveBooked = testDriveBooked;
 	}
 
 	public void setTestDriveBooked(boolean testDriveBooked) {
@@ -139,15 +125,11 @@ public class Car {
 		this.additionalInfo = additionalInfo;
 	}
 
-	@Override
-	public String toString() {
-		return "Car [id=" + id + ", basicInformation=" + basicInformation + ", technicalSpecifications="
-				+ technicalSpecifications + ", performanceMetrics=" + performanceMetrics + ", dimensionsCapacity="
-				+ dimensionsCapacity + ", features=" + features + ", additionalInfo=" + additionalInfo
-				+ ", testDriveBooked=" + testDriveBooked + "]";
-	}
-
 	public boolean isTestDriveBooked() {
 		return testDriveBooked;
+	}
+
+	public boolean isBlockedForPurchase() {
+		return blockedForPurchase;
 	}
 }

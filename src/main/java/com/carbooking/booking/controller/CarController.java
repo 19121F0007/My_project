@@ -1,5 +1,6 @@
 package com.carbooking.booking.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.carbooking.booking.DTO.TestDriveRequest;
+import com.carbooking.booking.Exception.CarAlreadyBlockedException;
 import com.carbooking.booking.Exception.CarNotFoundException;
-import com.carbooking.booking.Exception.TestDriveBookingException;
 import com.carbooking.booking.entity.Car;
 import com.carbooking.booking.service.CarService;
 
@@ -63,15 +65,31 @@ public class CarController {
 	    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	} 
 	
-	@PostMapping("/{id}/book-test-drive")
-	public ResponseEntity<String> bookTestDrive(@PathVariable("id") Long id) throws CarNotFoundException, TestDriveBookingException {
-		carService.bookTestDrive(id);
-		return new ResponseEntity<>("Test drive booked successfully", HttpStatus.OK);
+
+	@PostMapping("/{carId}/book-test-drive")
+	public ResponseEntity<String> bookTestDrive(@PathVariable Long carId, @RequestBody TestDriveRequest request) throws CarAlreadyBlockedException {
+	    try {
+	        LocalDateTime testDriveDateTime = request.getTestDriveDateTime();
+	        carService.bookTestDrive(carId, testDriveDateTime);
+	        return ResponseEntity.ok("Test drive booked successfully");
+	    } catch (CarNotFoundException e) {
+	        return ResponseEntity.notFound().build();
+	    }catch (CarAlreadyBlockedException e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
+	    
+	}
+
+	@PostMapping("/{carId}/block-for-purchase")
+	public ResponseEntity<String> blockCarForPurchase(@PathVariable Long carId) {
+	    try {
+	        carService.blockCarForPurchase(carId);
+	        return ResponseEntity.ok("Car blocked for purchase successfully");
+	    } catch (CarNotFoundException e) {
+	        return ResponseEntity.notFound().build();
+	    } catch (CarAlreadyBlockedException e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
 	}
 	
-	@PostMapping("/{id}/block-for-purchase")
-	public ResponseEntity<String> blockCarForPurchase(@PathVariable("id") Long id) {
-	    carService.blockCarForPurchase(id);
-	    return new ResponseEntity<>("Car blocked for purchase successfully", HttpStatus.OK);
-	}
 }

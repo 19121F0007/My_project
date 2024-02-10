@@ -1,21 +1,29 @@
 package com.carbooking.booking.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.carbooking.booking.Exception.CarAlreadyBlockedException;
 import com.carbooking.booking.Exception.CarNotFoundException;
 import com.carbooking.booking.Exception.CarServiceException;
-import com.carbooking.booking.Exception.TestDriveBookingException;
 import com.carbooking.booking.entity.Car;
+import com.carbooking.booking.entity.TestDrive;
 import com.carbooking.booking.repository.CarRepository;
+import com.carbooking.booking.repository.TestDriveRepository;
+
 
 @Service
 public class CarService {
 
 	@Autowired
 	private CarRepository carRepository;
+	
+	@Autowired
+    private TestDriveRepository testDriveRepository;
+	
 	
 	public Car addCar(Car car) {
 		try {
@@ -58,24 +66,39 @@ public class CarService {
 	    	throw new CarServiceException("Failed to delete car", e);
 		}
 	}
+	
+    public void bookTestDrive(Long carId, LocalDateTime testDriveDateTime) throws CarNotFoundException, CarAlreadyBlockedException {
+        java.util.Optional<Car> optionalCar = carRepository.findById(carId);
+        if (optionalCar.isPresent()) {
+            Car car = optionalCar.get();
+            if (!car.isTestDriveBooked()) {
+                car.setTestDriveBooked(true);
+                carRepository.save(car);
+                TestDrive testDrive = new TestDrive();
+                testDrive.setCar(car);
+                testDrive.setTestDriveDateTime(testDriveDateTime);
+                testDriveRepository.save(testDrive);
+            } else {
+                throw new CarAlreadyBlockedException("Car is already blocked for test drive");
+            }  
+        }else {
+            throw new CarNotFoundException("Car not found with id: " + carId);
+        }
+    }
 
-	public void bookTestDrive(Long carId) throws CarNotFoundException, TestDriveBookingException {
-	    java.util.Optional<Car> optionalCar = carRepository.findById(carId);
-	    if (optionalCar.isPresent()) {
-	        Car car = optionalCar.get();
-	        if (!car.isTestDriveBooked()) { 
-	            car.setTestDriveBooked(true);
-	            carRepository.save(car);
-	        } else {
-	            throw new TestDriveBookingException("Test drive for this car is already booked");
-	        }
-	    } else {
-	        throw new CarNotFoundException("Car not found with id: " + carId);
-	    }
-	} 
-
-	public void blockCarForPurchase(Long carid) {
-		
-		
-	}
+    public void blockCarForPurchase(Long carId) throws CarNotFoundException, CarAlreadyBlockedException {
+        java.util.Optional<Car> optionalCar = carRepository.findById(carId);
+        if (optionalCar.isPresent()) {
+            Car car = optionalCar.get();
+            if (!car.isBlockedForPurchase()) {
+                car.setBlockedForPurchase(true);
+                carRepository.save(car);
+            } else {
+                throw new CarAlreadyBlockedException("Car is already blocked for purchase");
+            }
+        } else {
+            throw new CarNotFoundException("Car not found with id: " + carId);
+        }
+    }
+    
 }
