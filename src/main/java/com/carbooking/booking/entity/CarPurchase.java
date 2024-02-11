@@ -10,11 +10,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class TestDrive {
-	
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class CarPurchase {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 
     @ManyToOne
     @JoinColumn(name = "car_id")
@@ -23,9 +22,8 @@ public class TestDrive {
     @ManyToOne
     @JoinColumn(name = "salesperson_id")
     private Salesperson salesperson;
-
-    private LocalDateTime testDriveDateTime;
-
+    
+    private LocalDateTime purchaseDateTime;
 
 	public Long getId() {
 		return id;
@@ -39,6 +37,10 @@ public class TestDrive {
 		return car;
 	}
 
+	public void setCar(Car car) {
+		this.car = car;
+	}
+
 	public Salesperson getSalesperson() {
 		return salesperson;
 	}
@@ -47,42 +49,29 @@ public class TestDrive {
 		this.salesperson = salesperson;
 	}
 
-	public void setCar(Car car) {
-		this.car = car;
+	public LocalDateTime getPurchaseDateTime() {
+		return purchaseDateTime;
 	}
 
-	public LocalDateTime getTestDriveDateTime() {
-		return testDriveDateTime;
+	public void setPurchaseDateTime(LocalDateTime purchaseDateTime) {
+		this.purchaseDateTime = purchaseDateTime;
 	}
 
-	public void setTestDriveDateTime(LocalDateTime testDriveDateTime) {
-		this.testDriveDateTime = testDriveDateTime;
-	}
-
-
-	public TestDrive(Long id, Car car, Salesperson salesperson, LocalDateTime testDriveDateTime) {
+	public CarPurchase(Long id, Car car, Salesperson salesperson, LocalDateTime purchaseDateTime) {
 		super();
 		this.id = id;
 		this.car = car;
 		this.salesperson = salesperson;
-		this.testDriveDateTime = testDriveDateTime;
-	}
-
-	public TestDrive() {
-		super();
+		this.purchaseDateTime = purchaseDateTime;
 	}
 
 	@Override
 	public String toString() {
-		return "TestDrive [id=" + id + ", car=" + car + ", salesperson=" + salesperson + ", testDriveDateTime="
-				+ testDriveDateTime + "]";
+		return "CarPurchase [id=" + id + ", car=" + car + ", salesperson=" + salesperson + ", purchaseDateTime="
+				+ purchaseDateTime + "]";
 	}
 
-	
-
-	
-    
-    
-
-    
+	public CarPurchase() {
+		super();
+	} 
 }
