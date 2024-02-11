@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.carbooking.booking.DTO.CarPurchaseRequest;
 import com.carbooking.booking.DTO.TestDriveRequest;
 import com.carbooking.booking.Exception.CarAlreadyBlockedException;
 import com.carbooking.booking.Exception.CarNotFoundException;
 import com.carbooking.booking.entity.Car;
+import com.carbooking.booking.entity.Salesperson;
 import com.carbooking.booking.service.CarService;
 
 @RestController
@@ -70,7 +72,8 @@ public class CarController {
 	public ResponseEntity<String> bookTestDrive(@PathVariable Long carId, @RequestBody TestDriveRequest request) throws CarAlreadyBlockedException {
 	    try {
 	        LocalDateTime testDriveDateTime = request.getTestDriveDateTime();
-	        carService.bookTestDrive(carId, testDriveDateTime);
+	        Salesperson salesperson = carService.findAvailableSalesperson();
+	        carService.bookTestDrive(carId, testDriveDateTime,salesperson);
 	        return ResponseEntity.ok("Test drive booked successfully");
 	    } catch (CarNotFoundException e) {
 	        return ResponseEntity.notFound().build();
@@ -81,9 +84,10 @@ public class CarController {
 	}
 
 	@PostMapping("/{carId}/block-for-purchase")
-	public ResponseEntity<String> blockCarForPurchase(@PathVariable Long carId) {
+	public ResponseEntity<String> blockCarForPurchase(@PathVariable Long carId, @RequestBody CarPurchaseRequest request) {
 	    try {
-	        carService.blockCarForPurchase(carId);
+	    	LocalDateTime purchaseDateTime = request.getpurchaseDateTime();
+	        carService.blockCarForPurchase(carId,purchaseDateTime);
 	        return ResponseEntity.ok("Car blocked for purchase successfully");
 	    } catch (CarNotFoundException e) {
 	        return ResponseEntity.notFound().build();

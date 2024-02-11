@@ -10,8 +10,12 @@ import com.carbooking.booking.Exception.CarAlreadyBlockedException;
 import com.carbooking.booking.Exception.CarNotFoundException;
 import com.carbooking.booking.Exception.CarServiceException;
 import com.carbooking.booking.entity.Car;
+import com.carbooking.booking.entity.CarPurchase;
+import com.carbooking.booking.entity.Salesperson;
 import com.carbooking.booking.entity.TestDrive;
 import com.carbooking.booking.repository.CarRepository;
+import com.carbooking.booking.repository.PurchaseRepository;
+import com.carbooking.booking.repository.SalespersonRepository;
 import com.carbooking.booking.repository.TestDriveRepository;
 
 
@@ -23,6 +27,12 @@ public class CarService {
 	
 	@Autowired
     private TestDriveRepository testDriveRepository;
+	
+	@Autowired
+	private PurchaseRepository purchaseRepository;
+	
+	@Autowired
+	private SalespersonRepository salespersonRepository;
 	
 	
 	public Car addCar(Car car) {
@@ -67,7 +77,7 @@ public class CarService {
 		}
 	}
 	
-    public void bookTestDrive(Long carId, LocalDateTime testDriveDateTime) throws CarNotFoundException, CarAlreadyBlockedException {
+    public void bookTestDrive(Long carId, LocalDateTime testDriveDateTime, Salesperson salesperson) throws CarNotFoundException, CarAlreadyBlockedException {
         java.util.Optional<Car> optionalCar = carRepository.findById(carId);
         if (optionalCar.isPresent()) {
             Car car = optionalCar.get();
@@ -77,6 +87,7 @@ public class CarService {
                 TestDrive testDrive = new TestDrive();
                 testDrive.setCar(car);
                 testDrive.setTestDriveDateTime(testDriveDateTime);
+                testDrive.setSalesperson(salesperson);
                 testDriveRepository.save(testDrive);
             } else {
                 throw new CarAlreadyBlockedException("Car is already blocked for test drive");
@@ -86,13 +97,17 @@ public class CarService {
         }
     }
 
-    public void blockCarForPurchase(Long carId) throws CarNotFoundException, CarAlreadyBlockedException {
+    public void blockCarForPurchase(Long carId,LocalDateTime purchaseDateTime) throws CarNotFoundException, CarAlreadyBlockedException {
         java.util.Optional<Car> optionalCar = carRepository.findById(carId);
         if (optionalCar.isPresent()) {
             Car car = optionalCar.get();
             if (!car.isBlockedForPurchase()) {
                 car.setBlockedForPurchase(true);
                 carRepository.save(car);
+                CarPurchase carPurchase = new CarPurchase();
+                carPurchase.setCar(car);
+                carPurchase.setPurchaseDateTime(purchaseDateTime);
+                purchaseRepository.save(carPurchase);
             } else {
                 throw new CarAlreadyBlockedException("Car is already blocked for purchase");
             }
@@ -100,5 +115,10 @@ public class CarService {
             throw new CarNotFoundException("Car not found with id: " + carId);
         }
     }
+
+	public Salesperson findAvailableSalesperson() {
+		// TODO Auto-generated method stub
+		return salespersonRepository.findFirstByAvailable(true);
+	}
     
 }
